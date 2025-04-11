@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D 模型預覽器</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #f4f4f4;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+    model-viewer {
+      width: 80vw;
+      height: 60vh;
+      border-radius: 16px;
+      box-shadow: 0 0 24px rgba(0,0,0,0.15);
+      background: white;
+      margin-bottom: 1rem;
+      border: 3px dashed transparent;
+      transition: border 0.3s ease;
+    }
+    model-viewer.dragover {
+      border-color: #2196f3;
+    }
+    .controls {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: none;
+      background: #2196f3;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1976d2;
+    }
+    #filename {
+      font-size: 0.9rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <model-viewer id="viewer"
+                src="default.glb"
+                alt="3D 模型"
+                auto-rotate
+                camera-controls
+                shadow-intensity="1"
+                background-color="#ffffff">
+  </model-viewer>
+
+  <div class="controls">
+    <button onclick="loadModel('models/robot.glb')">🤖 機器人</button>
+    <button onclick="loadModel('models/chair.glb')">🪑 椅子</button>
+    <button onclick="loadModel('models/sculpture.glb')">🗿 雕像</button>
+  </div>
+
+  <div>
+    <p id="filename">目前模型：default.glb</p>
+  </div>
+
+  <script>
+    const viewer = document.getElementById("viewer");
+    const filenameText = document.getElementById("filename");
+
+    // 拖曳上傳功能
+    viewer.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      viewer.classList.add("dragover");
+    });
+
+    viewer.addEventListener("dragleave", () => {
+      viewer.classList.remove("dragover");
+    });
+
+    viewer.addEventListener("drop", (e) => {
+      e.preventDefault();
+      viewer.classList.remove("dragover");
+
+      const file = e.dataTransfer.files[0];
+      if (file && (file.name.endsWith(".glb") || file.name.endsWith(".gltf"))) {
+        const url = URL.createObjectURL(file);
+        viewer.src = url;
+        filenameText.textContent = "目前模型（上傳）： " + file.name;
+      } else {
+        alert("請上傳 .glb 或 .gltf 檔案");
+      }
+    });
+
+    // 多模型按鈕切換
+    function loadModel(path) {
+      viewer.src = path;
+      const shortName = path.split("/").pop();
+      filenameText.textContent = "目前模型（預設）： " + shortName;
+    }
+  </script>
+
+</body>
+</html>
